@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Usage of Tense - Grammar Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      padding: 20px;
+    }
+    .question-container {
+      margin: 30px auto;
+      width: 80%;
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #aaa;
+      display: none;
+    }
+    .options button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      cursor: pointer;
+    }
+    #feedback {
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    #gif {
+      max-width: 200px;
+      margin: 10px auto;
+    }
+    #nextBtn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    #score {
+      margin-top: 10px;
+    }
+    #startBtn {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Usage of Tense - Grammar Game</h1>
+
+  <!-- Start Button -->
+  <button id="startBtn" onclick="startGame()">Start Game</button>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-ukulele.mp3" loop></audio>
+
+  <div class="question-container" id="gameContainer">
+    <div id="qNumber">Question 1 of 10</div>
+    <div id="question">Loading...</div>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <img id="gif" src="" alt="" style="display:none;" />
+    <div id="score">Score: 0</div>
+    <button id="nextBtn" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <!-- Correct & Wrong Sounds -->
+  <audio id="clapSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+  <audio id="wrongSound" src="https://www.fesliyanstudios.com/play-mp3/6675" preload="auto"></audio>
+
+  <script>
+    const questions = [
+      { question: "He ___ to school every day.", options: ["go", "goes", "gone", "going"], answer: "goes" },
+      { question: "I ___ dinner when she called.", options: ["had", "was having", "have", "has"], answer: "was having" },
+      { question: "They ___ in New York since 2010.", options: ["lived", "live", "have lived", "living"], answer: "have lived" },
+      { question: "She ___ a novel right now.", options: ["writes", "write", "is writing", "wrote"], answer: "is writing" },
+      { question: "By next year, I ___ my degree.", options: ["will complete", "will have completed", "complete", "completed"], answer: "will have completed" },
+      { question: "We ___ to London last summer.", options: ["gone", "went", "go", "going"], answer: "went" },
+      { question: "He ___ already left when I arrived.", options: ["have", "had", "has", "having"], answer: "had" },
+      { question: "They ___ soccer every weekend.", options: ["plays", "played", "play", "playing"], answer: "play" },
+      { question: "I ___ coffee before work every day.", options: ["drink", "drank", "drinks", "drinking"], answer: "drink" },
+      { question: "By 8 PM, we ___ dinner.", options: ["will finish", "will be finishing", "will have finished", "finishes"], answer: "will have finished" }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    const qNumber = document.getElementById("qNumber");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const feedbackEl = document.getElementById("feedback");
+    const gifEl = document.getElementById("gif");
+    const nextBtn = document.getElementById("nextBtn");
+    const scoreEl = document.getElementById("score");
+    const gameContainer = document.getElementById("gameContainer");
+
+    const clapSound = document.getElementById("clapSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const bgMusic = document.getElementById("bgMusic");
+
+    const correctGif = "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif";
+    const wrongGif = "https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif";
+
+    function startGame() {
+      document.getElementById("startBtn").style.display = "none";
+      gameContainer.style.display = "block";
+      bgMusic.play();
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = questions[current];
+      qNumber.textContent = `Question ${current + 1} of 10`;
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      feedbackEl.textContent = "";
+      gifEl.style.display = "none";
+      nextBtn.style.display = "none";
+
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[current].answer;
+      const isCorrect = selected === correct;
+
+      if (isCorrect) {
+        feedbackEl.textContent = "✅ Correct!";
+        gifEl.src = correctGif;
+        clapSound.play();
+        score++;
+      } else {
+        feedbackEl.textContent = "❌ Wrong!";
+        gifEl.src = wrongGif;
+        wrongSound.play();
+      }
+
+      gifEl.style.display = "block";
+      scoreEl.textContent = `Score: ${score}`;
+      Array.from(optionsEl.children).forEach(btn => btn.disabled = true);
+      nextBtn.style.display = "inline-block";
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < questions.length) {
+        loadQuestion();
+      } else {
+        questionEl.textContent = "🎉 Game Over!";
+        optionsEl.innerHTML = "";
+        feedbackEl.textContent = `Final Score: ${score} / 10`;
+        gifEl.style.display = "none";
+        nextBtn.style.display = "none";
+        qNumber.textContent = "Finished";
+      }
+    }
+  </script>
+</body>
+</html>
